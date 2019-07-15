@@ -59,19 +59,19 @@ public class App {
 
 		switch (customerDao.authenticateUser(username, pw)) {
 		case 1:
-			System.out.println("Welcome, valued customer!");
+			System.out.println("\nWelcome, valued customer!");
 			customerMenu();
 			break;
 		case 2:
-			System.out.println("Welcome, valued employee!");
+			System.out.println("\nWelcome, valued employee!");
 			employeeMenu();
 			break;
 		case 3:
-			System.out.println("Welcome, valued administrator!");
+			System.out.println("\nWelcome, valued administrator!");
 			adminMenu();
 			break;
 		default:
-			System.out.println("I'm sorry, that user name and password does not match our records.");
+			System.out.println("\nI'm sorry, that user name and password does not match our records.");
 			break;
 		}
 
@@ -105,13 +105,47 @@ public class App {
 	}
 
 	private static void employeeMenu() {
-
+		Scanner scnr = new Scanner(System.in);
+		System.out.println("Please make a selection:\n" + "1. View Account Details\n" + "2. View Open Applications\n");
+		switch (scnr.nextInt()) {
+		case 1:
+			System.out.println("Please enter the customer's account number:");
+			int an = scnr.nextInt();
+			System.out.println(customerDao.getAccountInfo(an));
+			customerDao.getAccountInfo(an);
+			break;
+		default:
+			System.out.println("I'm sorry, that was an invalid option.");
+			break;
+		}
+		// accounts information, balances, personal information
+		// approve/deny customer applications
+		scnr.close();
 	}
 
 	private static void adminMenu() {
-
+		Scanner scnr = new Scanner(System.in);
+		System.out.println("Please make a selection:\n" + "1. View Account Details\n" + "2. View Open Applications\n"
+				+ "3. Withdraw\n" + "4. Deposit\n" + "5. Transfer" + "6. Cancel Account");
+		// accounts information, balances, personal information
+		switch (scnr.nextInt()) {
+		case 1:
+			System.out.println("Please enter the customer's account number:");
+			int an = scnr.nextInt();
+			System.out.println(customerDao.getAccountInfo(an));
+			customerDao.getAccountInfo(an);
+			break;
+		default:
+			System.out.println("I'm sorry, that was an invalid option.");
+			break;
+		}
+		// approve/deny customer applications
+		// withdrawing, depositing, transferring from all accounts
+		// cancel accounts
+		scnr.close();
 	}
 
+	// separate account & customer registration
 	private static void registerUser() {
 		Scanner scnr = new Scanner(System.in);
 		System.out.println("Please enter a username and press enter.");
@@ -129,6 +163,6 @@ public class App {
 		balance = (scnr.nextBigDecimal());
 		customerDao.insert(new Customer(title, username, pw, firstname, middlename, lastname, balance));
 		scnr.close();
-		mainMenu();
+		return;
 	}
 }

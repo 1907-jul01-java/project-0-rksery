@@ -7,6 +7,7 @@ public class Customer {
     // customer account tools
     // constructors, getters & setters, tostring, hashcode, equals
     private String title = "Customer";
+    private int accountnumber;
     private String username;
     private String pw;
     private String firstname;
@@ -35,6 +36,14 @@ public class Customer {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getAccountnumber() {
+        return accountnumber;
+    }
+
+    public void setAccountnumber(int accountnumber) {
+        this.accountnumber = accountnumber;
     }
 
     public String getUsername() {
@@ -87,14 +96,15 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "Customer [balance=" + balance + ", firstname=" + firstname + ", lastname=" + lastname + ", middlename="
-                + middlename + ", pw=" + pw + ", title=" + title + ", username=" + username + "]";
+        return "Customer Account Number: " + accountnumber + "\nBalance: " + balance + "\nFirst Name: " + firstname
+                + "\nLast Name: " + lastname + "\nMiddlename: " + middlename + "\nUser Name: " + username;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + accountnumber;
         result = prime * result + ((balance == null) ? 0 : balance.hashCode());
         result = prime * result + ((firstname == null) ? 0 : firstname.hashCode());
         result = prime * result + ((lastname == null) ? 0 : lastname.hashCode());
@@ -114,6 +124,8 @@ public class Customer {
         if (getClass() != obj.getClass())
             return false;
         Customer other = (Customer) obj;
+        if (accountnumber != other.accountnumber)
+            return false;
         if (balance == null) {
             if (other.balance != null)
                 return false;
@@ -151,4 +163,5 @@ public class Customer {
             return false;
         return true;
     }
+
 }

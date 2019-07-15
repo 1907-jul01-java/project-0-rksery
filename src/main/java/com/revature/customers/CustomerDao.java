@@ -237,6 +237,37 @@ public class CustomerDao implements Dao<Customer> {
         return customers;
     }
 
+    public List<Customer> getAccountInfo(int an) {
+        Customer customer;
+        List<Customer> customers = new ArrayList<>();
+        try {
+            PreparedStatement pStatement = connection
+                    .prepareStatement("select * from public.full_set where accountnumber = ?");
+            pStatement.setInt(1, an);
+            ResultSet resultSet = pStatement.executeQuery();
+            while (resultSet.next()) {
+                customer = new Customer();
+                customer.setTitle(resultSet.getString("title"));
+                customer.setAccountnumber(an);
+                customer.setUsername(resultSet.getString("username"));
+                customer.setPw(resultSet.getString("pw"));
+                customer.setFirstname(resultSet.getString("firstname"));
+                customer.setMiddlename(resultSet.getString("middlename"));
+                customer.setLastname(resultSet.getString("lastname"));
+                String str = resultSet.getString("balance");
+                str = str.replaceAll("[$,]", "");
+                // System.out.println("After replacing: " + str);
+                BigDecimal bd = new BigDecimal(str);
+                // System.out.println("Here's the big decimal:" + bd);
+                customer.setBalance(bd);
+                customers.add(customer);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
+
     @Override
     public void update() {
 

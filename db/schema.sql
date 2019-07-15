@@ -72,8 +72,30 @@ VALUES
     'Sery'
   );
 insert into
+  users(username, pw, permissions)
+VALUES
+  ('jjdoe', 'password', 2);
+insert into
+  names (nameid, firstname, middlename, lastname)
+VALUES
+  (get_user_id('jjdoe'), 'John', 'Jay', 'Doe');
+insert into
+  users (username, pw, permissions)
+VALUES
+  ('testcust', 'password', 1);
+insert into
+  names (nameid, firstname, middlename, lastname)
+VALUES
+  (
+    get_user_id('testcust'),
+    'My',
+    'Test',
+    'Customer'
+  );
+insert into
   customers (custid, balance)
-VALUES(get_user_id('rksery'), 12345.23);
+VALUES
+  (get_user_id('testcust'), 123456789.23);
 -- create
   --   or replace function get_time () returns time with time zone as $$
   -- select
