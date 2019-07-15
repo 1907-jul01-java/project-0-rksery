@@ -62,12 +62,31 @@ public class CustomerDao implements Dao<Customer> {
             pStatement3.setString(1, customer.getUsername());
             pStatement3.setBigDecimal(2, customer.getBalance());
             pStatement3.executeUpdate();
+            connection.close();
 
             // System.out.println("Executed");
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public int authenticateUser(String un, String pass) {
+        try {
+            PreparedStatement pStatement = connection.prepareStatement("select pw from users where username = ?");
+            pStatement.setString(1, un.toString());
+            ResultSet resultSet = pStatement.executeQuery();
+            resultSet.next();
+            if (pass.equals(resultSet.getString("pw"))) {
+                int perm = getPermissionByUsername(un);
+                return perm;
+            } else {
+                return 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     @Override
@@ -118,6 +137,21 @@ public class CustomerDao implements Dao<Customer> {
     public int getUserIdByUsername(String username) {
         int result = 0;
         String sql = "{ ? = call get_user_id(?) }";
+        try {
+            CallableStatement cStatement = connection.prepareCall(sql);
+            cStatement.registerOutParameter(1, Types.INTEGER);
+            cStatement.setString(2, username);
+            cStatement.execute();
+            result = cStatement.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public int getPermissionByUsername(String username) {
+        int result = 0;
+        String sql = "{ ? = call get_user_perm(?) }";
         try {
             CallableStatement cStatement = connection.prepareCall(sql);
             cStatement.registerOutParameter(1, Types.INTEGER);

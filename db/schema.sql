@@ -29,12 +29,22 @@ create table names (
 );
 create table customers(
   custid integer primary key references users(userid),
+  -- accountnumber int not null references users(accountnumber),
   balance money not null
 );
 create
 or replace function get_user_id (user_name text) returns integer as $$
 SELECT
   userid
+from
+  users
+where
+  username = user_name;
+$$ language sql;
+create
+  or replace function get_user_perm (user_name text) returns integer as $$
+SELECT
+  permissions
 from
   users
 where

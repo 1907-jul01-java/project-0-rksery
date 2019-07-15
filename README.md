@@ -4,8 +4,8 @@ A Mavenized Java 8 CLI banking app connected to a PostgreSQL database.
 
 # User Stories
 - [x] Build the application using Java 8.
-- [] All interaction with the user should be done through the console using the `Scanner` class.
-- [] Customers of the bank should be able to register with a username and password, and apply to open an account.
+- [x] All interaction with the user should be done through the console using the `Scanner` class.
+- [x] Customers of the bank should be able to register with a username and password, and apply to open an account.
 - [] Customers should be able to apply for joint accounts.
 - [] Once the account is open, customers should be able to withdraw, deposit, and transfer funds between accounts.
 - [] All basic validation should be done, such as trying to input negative amounts, overdrawing from accounts etc.
