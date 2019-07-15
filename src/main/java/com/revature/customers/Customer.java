@@ -1,5 +1,7 @@
 package com.revature.customers;
 
+import java.math.BigDecimal;
+
 public class Customer {
 
     // customer account tools
@@ -10,14 +12,14 @@ public class Customer {
     private String firstname;
     private String middlename;
     private String lastname;
-    private float balance;
+    private BigDecimal balance;
 
     public Customer() {
         super();
     }
 
     public Customer(String title, String username, String pw, String firstname, String middlename, String lastname,
-            float balance) {
+            BigDecimal balance) {
         this.title = title;
         this.username = username;
         this.pw = pw;
@@ -75,11 +77,11 @@ public class Customer {
         this.lastname = lastname;
     }
 
-    public float getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(float balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
@@ -93,7 +95,7 @@ public class Customer {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Float.floatToIntBits(balance);
+        result = prime * result + ((balance == null) ? 0 : balance.hashCode());
         result = prime * result + ((firstname == null) ? 0 : firstname.hashCode());
         result = prime * result + ((lastname == null) ? 0 : lastname.hashCode());
         result = prime * result + ((middlename == null) ? 0 : middlename.hashCode());
@@ -112,7 +114,10 @@ public class Customer {
         if (getClass() != obj.getClass())
             return false;
         Customer other = (Customer) obj;
-        if (Float.floatToIntBits(balance) != Float.floatToIntBits(other.balance))
+        if (balance == null) {
+            if (other.balance != null)
+                return false;
+        } else if (!balance.equals(other.balance))
             return false;
         if (firstname == null) {
             if (other.firstname != null)
@@ -146,5 +151,4 @@ public class Customer {
             return false;
         return true;
     }
-
 }

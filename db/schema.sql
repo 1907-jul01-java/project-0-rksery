@@ -29,7 +29,7 @@ create table names (
 );
 create table customers(
   custid integer primary key references users(userid),
-  balance float not null
+  balance money not null
 );
 create
 or replace function get_user_id (user_name text) returns integer as $$

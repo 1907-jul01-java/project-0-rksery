@@ -1,5 +1,6 @@
 package com.revature;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 import com.revature.customers.Customer;
@@ -18,7 +19,7 @@ public class App {
 		String firstname = "undefinedfirst";
 		String middlename = "Not Applicable";
 		String lastname = "undefinedlast";
-		float balance = 0;
+		BigDecimal balance = new BigDecimal("0");
 
 		ConnectionUtil connectionUtil = new ConnectionUtil();
 		CustomerDao customerDao = new CustomerDao(connectionUtil.getConnection());
@@ -34,10 +35,10 @@ public class App {
 		System.out.println("Please enter your last name and press enter.");
 		lastname = scnr.nextLine();
 		System.out.println("Please enter an initial deposit and press enter.");
-		balance = Float.parseFloat(scnr.nextLine());
+		balance = (scnr.nextBigDecimal());
 
 		customerDao.insert(new Customer(title, username, pw, firstname, middlename, lastname, balance));
-		// System.out.println(customerDao.getAll());
+		System.out.println(customerDao.getAll());
 		// System.out.println("Kevin Bacon id:" + customerDao.getActorIdByName("Kevin
 		// Bacon"));
 		scnr.close();

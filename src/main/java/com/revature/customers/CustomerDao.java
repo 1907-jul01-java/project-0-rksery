@@ -1,5 +1,6 @@
 package com.revature.customers;
 
+import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,10 +38,10 @@ public class CustomerDao implements Dao<Customer> {
             // System.out.println("Executed");
             // System.out.println();
 
-            System.out.println(customer.getUsername());
-            System.out.println(customer.getFirstname());
-            System.out.println(customer.getMiddlename());
-            System.out.println(customer.getLastname());
+            // System.out.println(customer.getUsername());
+            // System.out.println(customer.getFirstname());
+            // System.out.println(customer.getMiddlename());
+            // System.out.println(customer.getLastname());
 
             PreparedStatement pStatement2 = connection.prepareStatement(
                     "insert into names (nameid, firstname, middlename, lastname) VALUES (get_user_id(?), ?, ?, ?)");
@@ -59,7 +60,7 @@ public class CustomerDao implements Dao<Customer> {
             PreparedStatement pStatement3 = connection
                     .prepareStatement("insert into customers(custid, balance) values(get_user_id(?),?)");
             pStatement3.setString(1, customer.getUsername());
-            pStatement3.setFloat(2, customer.getBalance());
+            pStatement3.setBigDecimal(2, customer.getBalance());
             pStatement3.executeUpdate();
 
             // System.out.println("Executed");
@@ -85,7 +86,12 @@ public class CustomerDao implements Dao<Customer> {
                 customer.setFirstname(resultSet.getString("firstname"));
                 customer.setMiddlename(resultSet.getString("middlename"));
                 customer.setLastname(resultSet.getString("lastname"));
-                customer.setBalance(resultSet.getInt("balance"));
+                String str = resultSet.getString("balance");
+                str = str.replaceAll("[$,]", "");
+                // System.out.println("After replacing: " + str);
+                BigDecimal bd = new BigDecimal(str);
+                // System.out.println("Here's the big decimal:" + bd);
+                customer.setBalance(bd);
                 customers.add(customer);
             }
         } catch (SQLException e) {
