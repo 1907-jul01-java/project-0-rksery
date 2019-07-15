@@ -16,7 +16,6 @@ create table permissions (
 );
 create table users (
   userid serial not null primary key,
-  accountnumber int not null default nextval('account_id_seq' :: regclass),
   username text not null unique,
   pw text not null,
   permissions integer not null
@@ -29,7 +28,7 @@ create table names (
 );
 create table customers(
   custid integer primary key references users(userid),
-  -- accountnumber int not null references users(accountnumber),
+  accountnumber int not null default nextval('account_id_seq' :: regclass),
   balance money not null
 );
 create

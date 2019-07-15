@@ -1,7 +1,6 @@
 package com.revature;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.util.Scanner;
 
 import com.revature.customers.Customer;
@@ -54,11 +53,11 @@ public class App {
 	private static void logIn() {
 		Scanner scnr = new Scanner(System.in);
 		System.out.println("Please enter your user name:");
-		String un = scnr.nextLine();
+		username = scnr.nextLine();
 		System.out.println("Please enter your password:");
-		String pass = scnr.nextLine();
+		pw = scnr.nextLine();
 
-		switch (customerDao.authenticateUser(un, pass)) {
+		switch (customerDao.authenticateUser(username, pw)) {
 		case 1:
 			System.out.println("Welcome, valued customer!");
 			customerMenu();
@@ -81,8 +80,28 @@ public class App {
 	}
 
 	private static void customerMenu() {
-		System.out.println("Welcome to THE BANK!\n" + "Please make a selection:\n" + "1. Log in\n"
-				+ "2. Register a user account\n");
+		Scanner scnr = new Scanner(System.in);
+		System.out.println("Please make a selection:\n" + "1. Withdraw\n" + "2. Deposit\n" + "3. Transfer funds\n");
+		switch (scnr.nextInt()) {
+		case 1:
+			System.out.println("Please enter the desired withdrawal amount:");
+			String newamt = customerDao.withdrawBalance(username, scnr.nextBigDecimal());
+			System.out.println(newamt);
+			break;
+		case 2:
+			System.out.println("Please enter the desired deposit amount:");
+			newamt = customerDao.depositBalance(username, scnr.nextBigDecimal());
+			System.out.println(newamt);
+			break;
+		case 3:
+			System.out.println("Please enter the account number you would like to transfer funds to:");
+			int an = scnr.nextInt();
+			System.out.println("Please enter the desired transfer amount:");
+			BigDecimal amt = scnr.nextBigDecimal();
+			System.out.println(customerDao.transferBalance(username, an, amt));
+			break;
+		}
+		scnr.close();
 	}
 
 	private static void employeeMenu() {
@@ -110,11 +129,6 @@ public class App {
 		balance = (scnr.nextBigDecimal());
 		customerDao.insert(new Customer(title, username, pw, firstname, middlename, lastname, balance));
 		scnr.close();
-		return;
+		mainMenu();
 	}
-
-	private static void createAccount() {
-
-	}
-
 }

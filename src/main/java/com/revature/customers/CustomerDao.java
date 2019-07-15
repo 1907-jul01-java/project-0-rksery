@@ -71,6 +71,124 @@ public class CustomerDao implements Dao<Customer> {
         }
     }
 
+    public int readAccountNumbers(String user) {
+        try {
+            int userid = getUserIdByUsername(user);
+            PreparedStatement pStatement = connection
+                    .prepareStatement("select accountnumber from customers where custid = ?");
+            pStatement.setInt(1, userid);
+            ResultSet resultSet = pStatement.executeQuery();
+            resultSet.next();
+            int an = resultSet.getInt("accountnumber");
+            return an;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // refactor these to be USER AGNOSTIC - tied to account, not user
+    public String withdrawBalance(String user, BigDecimal bd) {
+        try {
+            int an = readAccountNumbers(user);
+
+            PreparedStatement pStatement0 = connection
+                    .prepareStatement("select balance from customers where accountnumber = ?");
+            pStatement0.setInt(1, an);
+            ResultSet resultSet1 = pStatement0.executeQuery();
+            resultSet1.next();
+            String amt1 = resultSet1.getString("balance");
+
+            PreparedStatement pStatement = connection
+                    .prepareStatement("update customers set balance = balance - ?::money where accountnumber = ?");
+            pStatement.setBigDecimal(1, bd);
+            pStatement.setInt(2, an);
+            pStatement.executeUpdate();
+
+            PreparedStatement pStatement1 = connection
+                    .prepareStatement("select balance from customers where accountnumber = ?");
+            pStatement1.setInt(1, an);
+            ResultSet resultSet2 = pStatement1.executeQuery();
+            resultSet2.next();
+            String amt2 = resultSet2.getString("balance");
+            return amt1 + " - $" + bd + " = " + amt2;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Transaction Error";
+    }
+
+    public String depositBalance(String user, BigDecimal bd) {
+        try {
+            int an = readAccountNumbers(user);
+
+            PreparedStatement pStatement0 = connection
+                    .prepareStatement("select balance from customers where accountnumber = ?");
+            pStatement0.setInt(1, an);
+            ResultSet resultSet1 = pStatement0.executeQuery();
+            resultSet1.next();
+            String amt1 = resultSet1.getString("balance");
+
+            PreparedStatement pStatement = connection
+                    .prepareStatement("update customers set balance = balance + ?::money where accountnumber = ?");
+            pStatement.setBigDecimal(1, bd);
+            pStatement.setInt(2, an);
+            pStatement.executeUpdate();
+
+            PreparedStatement pStatement1 = connection
+                    .prepareStatement("select balance from customers where accountnumber = ?");
+            pStatement1.setInt(1, an);
+            ResultSet resultSet2 = pStatement1.executeQuery();
+            resultSet2.next();
+            String amt2 = resultSet2.getString("balance");
+            return amt1 + " + $" + bd + " = " + amt2;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Transaction Error";
+    }
+
+    public String transferBalance(String user, int an2, BigDecimal bd) {
+        try {
+            int an1 = readAccountNumbers(user);
+            PreparedStatement pStatement0 = connection
+                    .prepareStatement("select balance from customers where accountnumber = ?");
+            pStatement0.setInt(1, an1);
+            ResultSet resultSet1 = pStatement0.executeQuery();
+            resultSet1.next();
+            String amt1 = resultSet1.getString("balance");
+
+            // subtract from account 1
+            PreparedStatement pStatementa = connection
+                    .prepareStatement("update customers set balance = balance - ?::money where accountnumber = ?");
+            pStatementa.setBigDecimal(1, bd);
+            pStatementa.setInt(2, an1);
+            pStatementa.executeUpdate();
+
+            PreparedStatement pStatementb = connection
+                    .prepareStatement("update customers set balance = balance + ?::money where accountnumber = ?");
+            pStatementb.setBigDecimal(1, bd);
+            pStatementb.setInt(2, an2);
+            pStatementb.executeUpdate();
+
+            PreparedStatement pStatement1 = connection
+                    .prepareStatement("select balance from customers where accountnumber = ?");
+            pStatement1.setInt(1, an2);
+            ResultSet resultSet2 = pStatement1.executeQuery();
+            resultSet2.next();
+            String amt2 = resultSet2.getString("balance");
+            return "New Balance of account number " + an1 + ": " + amt1 + "\nNew Balance of account number " + an2
+                    + ": " + amt2;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Transaction Error";
+    }
+
     public int authenticateUser(String un, String pass) {
         try {
             PreparedStatement pStatement = connection.prepareStatement("select pw from users where username = ?");
