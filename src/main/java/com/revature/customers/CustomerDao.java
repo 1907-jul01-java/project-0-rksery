@@ -23,27 +23,11 @@ public class CustomerDao implements Dao<Customer> {
     @Override
     public void insert(Customer customer) {
         try {
-            // int userid = getUserIdByUsername(customer.getUsername());
-            // System.out.println(customer.getUsername());
-            // System.out.println(customer.getPw());
-            // System.out.println(customer.getFirstname());
-            // System.out.println(customer.getMiddlename());
-            // System.out.println(customer.getLastname());
-            // System.out.println(customer.getBalance());
-
             PreparedStatement pStatement = connection
                     .prepareStatement("insert into users (username, pw, permissions) values (?,?, 1)");
             pStatement.setString(1, customer.getUsername());
             pStatement.setString(2, customer.getPw());
             pStatement.executeUpdate();
-
-            // System.out.println("Executed");
-            // System.out.println();
-
-            // System.out.println(customer.getUsername());
-            // System.out.println(customer.getFirstname());
-            // System.out.println(customer.getMiddlename());
-            // System.out.println(customer.getLastname());
 
             PreparedStatement pStatement2 = connection.prepareStatement(
                     "insert into names (nameid, firstname, middlename, lastname) VALUES (get_user_id(?), ?, ?, ?)");
@@ -53,20 +37,22 @@ public class CustomerDao implements Dao<Customer> {
             pStatement2.setString(4, customer.getLastname());
             pStatement2.executeUpdate();
 
-            // System.out.println("Executed");
-            // System.out.println();
-
-            // System.out.println(customer.getUsername());
-            // System.out.println(customer.getBalance());
-
-            PreparedStatement pStatement3 = connection
-                    .prepareStatement("insert into customers(custid, balance) values(get_user_id(?),0)");
-            pStatement3.setString(1, customer.getUsername());
-            // pStatement3.setBigDecimal(2, customer.getBalance());
-            pStatement3.executeUpdate();
-            connection.close();
-
-            // System.out.println("Executed");
+            if (customer.getAccountnumber() == 0) {
+                PreparedStatement pStatement3 = connection
+                        .prepareStatement("insert into customers(custid, balance) values(get_user_id(?),0)");
+                pStatement3.setString(1, customer.getUsername());
+                // pStatement3.setBigDecimal(2, customer.getBalance());
+                pStatement3.executeUpdate();
+                System.out.println("\nRegular account created!\n");
+            } else {
+                PreparedStatement pStatement3 = connection.prepareStatement(
+                        "insert into customers(custid, accountnumber, balance) values(get_user_id(?),?,0)");
+                pStatement3.setString(1, customer.getUsername());
+                pStatement3.setInt(2, customer.getAccountnumber());
+                // pStatement3.setBigDecimal(2, customer.getBalance());
+                pStatement3.executeUpdate();
+                System.out.println("\nJoint account created!\n");
+            }
 
         } catch (SQLException e) {
         }
@@ -75,6 +61,7 @@ public class CustomerDao implements Dao<Customer> {
     public int readAccountNumbers(String user) {
         try {
             int userid = getUserIdByUsername(user);
+            System.out.println("readAccountNumbers received this: " + userid + " from getUserIdByUsername");
             PreparedStatement pStatement = connection
                     .prepareStatement("select accountnumber from customers where custid = ?");
             pStatement.setInt(1, userid);
@@ -82,13 +69,11 @@ public class CustomerDao implements Dao<Customer> {
             resultSet.next();
             int an = resultSet.getInt("accountnumber");
             return an;
-
         } catch (SQLException e) {
         }
         return 0;
     }
 
-    // refactor these to be USER AGNOSTIC - tied to account, not user
     public String withdrawBalance(String user, BigDecimal bd) {
         try {
             int an = readAccountNumbers(user);
@@ -383,6 +368,7 @@ public class CustomerDao implements Dao<Customer> {
 
     // callable statement
     public int getUserIdByUsername(String username) {
+        System.out.println("getUserIdByUsername thinks " + username + " is your username");
         int result = 0;
         String sql = "{ ? = call get_user_id(?) }";
         try {
@@ -391,10 +377,25 @@ public class CustomerDao implements Dao<Customer> {
             cStatement.setString(2, username);
             cStatement.execute();
             result = cStatement.getInt(1);
+            System.out.println("getUserIdByUsername result is: " + result);
         } catch (SQLException e) {
         }
         return result;
     }
+
+    // public int getUserIdByUsername(String u) {
+    // try {
+    // PreparedStatement pStatement = connection.prepareStatement("select userid
+    // from users where username = ?");
+    // pStatement.setString(1, u);
+    // ResultSet resultSet = pStatement.executeQuery();
+    // int rs = resultSet.getInt("userid");
+    // return rs;
+    // } catch (SQLException e) {
+    // }
+    // System.out.println("Something went wrong...");
+    // return 0;
+    // }
 
     public int getPermissionByUsername(String username) {
         int result = 0;

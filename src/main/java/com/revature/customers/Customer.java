@@ -30,6 +30,18 @@ public class Customer {
         this.balance = balance;
     }
 
+    public Customer(String title, int accountnumber, String username, String pw, String firstname, String middlename,
+            String lastname, BigDecimal balance) {
+        this.title = title;
+        this.accountnumber = accountnumber;
+        this.username = username;
+        this.pw = pw;
+        this.firstname = firstname;
+        this.middlename = middlename;
+        this.lastname = lastname;
+        this.balance = balance;
+    }
+
     public String getTitle() {
         return title;
     }

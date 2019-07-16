@@ -59,10 +59,11 @@ public class App {
 		switch (customerDao.authenticateUser(username, pw)) {
 		case 1:
 			System.out.println("\nWelcome, " + username + "!");
-			System.out.println("Please type the account number of the account you wish to change:");
-			customerDao.getAccountList(username);
-			int an = scnr.nextInt();
-			if (customerDao.checkAccountStatus(an) == 2) {
+			// System.out.println("Please type the account number of the account you wish to
+			// change:");
+			// customerDao.getAccountList(username);
+			// int an = scnr.nextInt();
+			if (customerDao.checkAccountStatus(customerDao.readAccountNumbers(username)) == 2) {
 				customerMenu(scnr);
 				break;
 			} else {
@@ -189,6 +190,7 @@ public class App {
 
 	// separate account & customer registration
 	private static void registerUser(Scanner scnr) {
+		scnr.nextLine();
 		System.out.println("Please enter a username and press enter.");
 		username = scnr.nextLine();
 		// System.out.println(username);
@@ -203,6 +205,26 @@ public class App {
 		// System.out.println("Please enter an initial deposit and press enter.");
 		balance = (BigDecimal.ZERO);
 		customerDao.insert(new Customer(title, username, pw, firstname, middlename, lastname, balance));
+		System.out.println("Would you like to create another user for this account?\n1. Yes\n2. No\n");
+		if (scnr.nextInt() == 1) {
+			scnr.nextLine();
+			System.out.println("Please enter a username and press enter.");
+			String un = scnr.nextLine();
+			// System.out.println(username);
+			System.out.println("Please enter a password and press enter.");
+			pw = scnr.nextLine();
+			System.out.println("Please enter your first name and press enter.");
+			firstname = scnr.nextLine();
+			System.out.println("Please enter your middle name and press enter.");
+			middlename = scnr.nextLine();
+			System.out.println("Please enter your last name and press enter.");
+			lastname = scnr.nextLine();
+			// System.out.println("Please enter an initial deposit and press enter.");
+			balance = (BigDecimal.ZERO);
+			int accountnumber = customerDao.readAccountNumbers(username);
+			System.out.println("Using account number: " + accountnumber);
+			customerDao.insert(new Customer(title, accountnumber, un, pw, firstname, middlename, lastname, balance));
+		}
 		mainMenu(scnr);
 	}
 }
