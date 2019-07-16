@@ -9,11 +9,11 @@ A Mavenized Java 8 CLI banking app connected to a PostgreSQL database.
 - [] Customers should be able to apply for joint accounts.
 - [x] Once the account is open, customers should be able to withdraw, deposit, and transfer funds between accounts.
 - [] All basic validation should be done, such as trying to input negative amounts, overdrawing from accounts etc.
-- [] Employees of the bank should be able to view all of their customers information. This includes:
+- [x] Employees of the bank should be able to view all of their customers information. This includes:
     - [x] Account information
     - [x] Account balances
     - [x] Personal information
-- [] Employees should be able to approve/deny open applications for accounts.
+- [x] Employees should be able to approve/deny open applications for accounts.
 - [] Bank admins should be able to view and edit all accounts. This includes:
     - [] Approving/denying accounts
     - [] Withdrawing, depositing, transferring from all accounts

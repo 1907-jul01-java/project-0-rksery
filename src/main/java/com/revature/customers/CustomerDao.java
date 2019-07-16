@@ -149,7 +149,9 @@ public class CustomerDao implements Dao<Customer> {
         return "Transaction Error";
     }
 
+    // refactor to use two account numbers
     public String transferBalance(String user, int an2, BigDecimal bd) {
+
         try {
             int an1 = readAccountNumbers(user);
             PreparedStatement pStatement0 = connection
