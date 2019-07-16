@@ -58,15 +58,24 @@ public class App {
 
 		switch (customerDao.authenticateUser(username, pw)) {
 		case 1:
-			System.out.println("\nWelcome, valued customer!");
-			customerMenu(scnr);
-			break;
+			System.out.println("\nWelcome, " + username + "!");
+			System.out.println("Please type the account number of the account you wish to change:");
+			customerDao.getAccountList(username);
+			int an = scnr.nextInt();
+			if (customerDao.checkAccountStatus(an) == 2) {
+				customerMenu(scnr);
+				break;
+			} else {
+				System.out.println(
+						"I'm sorry, that account is currently inactive. Please contact a BANK employee for more information.");
+			}
+
 		case 2:
-			System.out.println("\nWelcome, valued employee!");
+			System.out.println("\nWelcome, " + username + "!");
 			employeeMenu(scnr);
 			break;
 		case 3:
-			System.out.println("\nWelcome, valued administrator!");
+			System.out.println("\nWelcome, " + username + "!");
 			adminMenu(scnr);
 			break;
 		default:
@@ -191,8 +200,8 @@ public class App {
 		middlename = scnr.nextLine();
 		System.out.println("Please enter your last name and press enter.");
 		lastname = scnr.nextLine();
-		System.out.println("Please enter an initial deposit and press enter.");
-		balance = (scnr.nextBigDecimal());
+		// System.out.println("Please enter an initial deposit and press enter.");
+		balance = (BigDecimal.ZERO);
 		customerDao.insert(new Customer(title, username, pw, firstname, middlename, lastname, balance));
 		mainMenu(scnr);
 	}

@@ -60,9 +60,9 @@ public class CustomerDao implements Dao<Customer> {
             // System.out.println(customer.getBalance());
 
             PreparedStatement pStatement3 = connection
-                    .prepareStatement("insert into customers(custid, balance) values(get_user_id(?),?)");
+                    .prepareStatement("insert into customers(custid, balance) values(get_user_id(?),0)");
             pStatement3.setString(1, customer.getUsername());
-            pStatement3.setBigDecimal(2, customer.getBalance());
+            // pStatement3.setBigDecimal(2, customer.getBalance());
             pStatement3.executeUpdate();
             connection.close();
 
@@ -205,6 +205,19 @@ public class CustomerDao implements Dao<Customer> {
         return 0;
     }
 
+    public int checkAccountStatus(int an) {
+        try {
+            PreparedStatement pStatement = connection
+                    .prepareStatement("select custactive from customers where accountnumber = ?");
+            pStatement.setInt(1, an);
+            ResultSet resultSet = pStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt("custactive");
+        } catch (SQLException e) {
+        }
+        return 0;
+    }
+
     public void approveDenyApplications(Scanner scnr) {
         try {
             Statement statement = connection.createStatement();
@@ -331,6 +344,27 @@ public class CustomerDao implements Dao<Customer> {
         } catch (SQLException e) {
         }
         return customers;
+    }
+
+    public void getAccountList(String u) {
+        try {
+            PreparedStatement pStatement = connection
+                    .prepareStatement("select accountnumber, balance from public.full_nopw where username = ?");
+            pStatement.setString(1, u);
+            ResultSet resultSet = pStatement.executeQuery();
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            int columns = rsmd.getColumnCount();
+            System.out.println("Account Number\t\tBalance");
+            while (resultSet.next()) {
+                for (int i = 1; i <= columns; i++) {
+                    if (i > 1)
+                        System.out.print("\t\t\t");
+                    System.out.print(resultSet.getString(i));
+                }
+                System.out.println();
+            }
+        } catch (SQLException e) {
+        }
     }
 
     @Override
