@@ -22,7 +22,8 @@ public class App {
 	private static CustomerDao customerDao = new CustomerDao(connectionUtil.getConnection());
 
 	public static void main(String[] args) {
-		mainMenu();
+		Scanner scnr = new Scanner(System.in);
+		mainMenu(scnr);
 		// System.out.println(customerDao.getAll());
 		// System.out.println("Kevin Bacon id:" + customerDao.getActorIdByName("Kevin
 		// Bacon"));
@@ -30,28 +31,26 @@ public class App {
 		// System.out.println("Enter your username: ");
 		// String username = ReceiveInput.scannerSet();
 		// System.out.println("Your username is " + username);
+		scnr.close();
 		connectionUtil.close();
 	}
 
-	private static void mainMenu() {
-		Scanner scnr = new Scanner(System.in);
+	private static void mainMenu(Scanner scnr) {
 		System.out.println("Welcome to THE BANK!\n" + "Please make a selection:\n" + "1. Log in\n"
 				+ "2. Register a user account\n");
-
 		switch (scnr.nextInt()) {
 		case 1:
-			logIn();
+			logIn(scnr);
 			break;
 		case 2:
-			registerUser();
+			registerUser(scnr);
 			break;
 		}
-		scnr.close();
-		return;
+		mainMenu(scnr);
 	}
 
-	private static void logIn() {
-		Scanner scnr = new Scanner(System.in);
+	private static void logIn(Scanner scnr) {
+		scnr.nextLine();
 		System.out.println("Please enter your user name:");
 		username = scnr.nextLine();
 		System.out.println("Please enter your password:");
@@ -60,27 +59,25 @@ public class App {
 		switch (customerDao.authenticateUser(username, pw)) {
 		case 1:
 			System.out.println("\nWelcome, valued customer!");
-			customerMenu();
+			customerMenu(scnr);
 			break;
 		case 2:
 			System.out.println("\nWelcome, valued employee!");
-			employeeMenu();
+			employeeMenu(scnr);
 			break;
 		case 3:
 			System.out.println("\nWelcome, valued administrator!");
-			adminMenu();
+			adminMenu(scnr);
 			break;
 		default:
 			System.out.println("\nI'm sorry, that user name and password does not match our records.");
 			break;
 		}
 
-		scnr.close();
-		return;
+		mainMenu(scnr);
 	}
 
-	private static void customerMenu() {
-		Scanner scnr = new Scanner(System.in);
+	private static void customerMenu(Scanner scnr) {
 		System.out.println("Please make a selection:\n" + "1. Withdraw\n" + "2. Deposit\n" + "3. Transfer funds\n");
 		switch (scnr.nextInt()) {
 		case 1:
@@ -101,30 +98,32 @@ public class App {
 			System.out.println(customerDao.transferBalance(username, an, amt));
 			break;
 		}
-		scnr.close();
+		customerMenu(scnr);
 	}
 
-	private static void employeeMenu() {
-		Scanner scnr = new Scanner(System.in);
+	private static void employeeMenu(Scanner scnr) {
 		System.out.println("Please make a selection:\n" + "1. View Account Details\n" + "2. View Open Applications\n");
 		switch (scnr.nextInt()) {
 		case 1:
+			// accounts information, balances, personal information
 			System.out.println("Please enter the customer's account number:");
 			int an = scnr.nextInt();
 			System.out.println(customerDao.getAccountInfo(an));
 			customerDao.getAccountInfo(an);
 			break;
+		case 2:
+			// approve/deny customer applications
+			customerDao.approveDenyApplications(scnr);
+			System.out.println();
+			break;
 		default:
-			System.out.println("I'm sorry, that was an invalid option.");
+			System.out.println("I'm sorry, that was an invalid option.\n");
 			break;
 		}
-		// accounts information, balances, personal information
-		// approve/deny customer applications
-		scnr.close();
+		employeeMenu(scnr);
 	}
 
-	private static void adminMenu() {
-		Scanner scnr = new Scanner(System.in);
+	private static void adminMenu(Scanner scnr) {
 		System.out.println("Please make a selection:\n" + "1. View Account Details\n" + "2. View Open Applications\n"
 				+ "3. Withdraw\n" + "4. Deposit\n" + "5. Transfer" + "6. Cancel Account");
 		// accounts information, balances, personal information
@@ -142,12 +141,11 @@ public class App {
 		// approve/deny customer applications
 		// withdrawing, depositing, transferring from all accounts
 		// cancel accounts
-		scnr.close();
+		adminMenu(scnr);
 	}
 
 	// separate account & customer registration
-	private static void registerUser() {
-		Scanner scnr = new Scanner(System.in);
+	private static void registerUser(Scanner scnr) {
 		System.out.println("Please enter a username and press enter.");
 		username = scnr.nextLine();
 		// System.out.println(username);
@@ -162,7 +160,6 @@ public class App {
 		System.out.println("Please enter an initial deposit and press enter.");
 		balance = (scnr.nextBigDecimal());
 		customerDao.insert(new Customer(title, username, pw, firstname, middlename, lastname, balance));
-		scnr.close();
-		return;
+		mainMenu(scnr);
 	}
 }

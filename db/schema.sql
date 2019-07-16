@@ -1,6 +1,8 @@
 -- create transaction function to add users
-DROP VIEW full_set;
+DROP VIEW IF EXISTS full_set;
+DROP VIEW IF EXISTS full_nopw;
 DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS customerstatus;
 DROP TABLE IF EXISTS names;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS permissions;
@@ -26,10 +28,15 @@ create table names (
   middlename text,
   lastname text not null
 );
+create table customerstatus(
+  statusid serial primary key,
+  statusactive text not null unique
+);
 create table customers(
   custid integer primary key references users(userid),
   accountnumber int not null default nextval('account_id_seq' :: regclass),
-  balance money not null
+  balance money not null,
+  custactive integer not null default 1 references customerStatus(statusid)
 );
 create
 or replace function get_user_id (user_name text) returns integer as $$
@@ -58,6 +65,18 @@ VALUES('Employee');
 insert into
   permissions (title)
 VALUES('Administrator');
+insert into
+  customerstatus (statusactive)
+VALUES
+  ('New');
+insert into
+  customerstatus (statusactive)
+VALUES
+  ('Approved');
+insert into
+  customerstatus (statusactive)
+VALUES
+  ('Denied');
 insert into
   users (username, pw, permissions)
 VALUES
@@ -93,9 +112,26 @@ VALUES
     'Customer'
   );
 insert into
-  customers (custid, balance)
+  customers (custid, balance, custactive)
 VALUES
-  (get_user_id('testcust'), 123456789.23);
+  (get_user_id('testcust'), 123456789.23, 1);
+insert into
+  users (username, pw, permissions)
+VALUES
+  ('testcust2', 'password', 1);
+insert into
+  names (nameid, firstname, middlename, lastname)
+VALUES
+  (
+    get_user_id('testcust2'),
+    'My2',
+    'Test2',
+    'Customer2'
+  );
+insert into
+  customers (custid, balance, custactive)
+VALUES
+  (get_user_id('testcust2'), 23456789.23, 1);
 -- create
   --   or replace function get_time () returns time with time zone as $$
   -- select
@@ -107,6 +143,7 @@ VALUES
 select
   title,
   accountnumber,
+  statusactive,
   username,
   pw,
   firstname,
@@ -117,8 +154,31 @@ from
   permissions,
   users,
   names,
+  customerstatus,
   customers
 where
   users.permissions = permissions.permid
   and names.nameid = users.userid
-  and customers.custid = users.userid;
+  and customers.custid = users.userid
+  and customerstatus.statusid = customers.custactive;
+create
+  or replace view full_nopw as
+select
+  accountnumber,
+  statusactive,
+  username,
+  firstname,
+  middlename,
+  lastname,
+  balance
+from
+  permissions,
+  users,
+  names,
+  customerstatus,
+  customers
+where
+  users.permissions = permissions.permid
+  and names.nameid = users.userid
+  and customers.custid = users.userid
+  and customerstatus.statusid = customers.custactive;

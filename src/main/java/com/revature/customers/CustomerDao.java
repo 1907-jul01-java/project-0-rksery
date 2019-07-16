@@ -5,11 +5,13 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import com.revature.Dao;
 
@@ -67,7 +69,6 @@ public class CustomerDao implements Dao<Customer> {
             // System.out.println("Executed");
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -83,7 +84,6 @@ public class CustomerDao implements Dao<Customer> {
             return an;
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return 0;
     }
@@ -115,7 +115,6 @@ public class CustomerDao implements Dao<Customer> {
             return amt1 + " - $" + bd + " = " + amt2;
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return "Transaction Error";
     }
@@ -146,7 +145,6 @@ public class CustomerDao implements Dao<Customer> {
             return amt1 + " + $" + bd + " = " + amt2;
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return "Transaction Error";
     }
@@ -184,7 +182,6 @@ public class CustomerDao implements Dao<Customer> {
                     + ": " + amt2;
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return "Transaction Error";
     }
@@ -202,9 +199,50 @@ public class CustomerDao implements Dao<Customer> {
                 return 0;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return 0;
+    }
+
+    public void approveDenyApplications(Scanner scnr) {
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select * from public.full_nopw where statusactive = 'New'");
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            int columns = rsmd.getColumnCount();
+            System.out.println("Account Number\tStatus\t\tUser Name\t\tFirst Name\tMiddle Name\tLast Name\t\tBalance");
+            while (resultSet.next()) {
+                for (int i = 1; i <= columns; i++) {
+                    if (i > 1)
+                        System.out.print("\t\t");
+                    System.out.print(resultSet.getString(i));
+                }
+                System.out.println();
+            }
+            System.out.println("Please enter the number of the account you wish to modify:");
+            int an = scnr.nextInt();
+            System.out.println("1. Approve\n2. Deny\n3. Exit");
+            int edit = scnr.nextInt() + 1;
+            if (edit == 2 | edit == 3) {
+                PreparedStatement pStatement = connection
+                        .prepareStatement("update customers set custactive = ? where accountnumber = ?");
+                pStatement.setInt(1, edit);
+                pStatement.setInt(2, an);
+                pStatement.executeQuery();
+            } else {
+                System.out.println("Exiting...");
+                return;
+            }
+            switch (edit) {
+            case 2:
+                System.out.println("Approved!\n");
+                break;
+            case 3:
+                System.out.println("Denied!\n");
+                break;
+            }
+            System.out.println();
+        } catch (SQLException e) {
+        }
     }
 
     @Override
@@ -213,7 +251,6 @@ public class CustomerDao implements Dao<Customer> {
         List<Customer> customers = new ArrayList<>();
         try {
             Statement statement = connection.createStatement();
-            // change "movies" for your table
             ResultSet resultSet = statement.executeQuery("select * from public.full_set");
             while (resultSet.next()) {
                 customer = new Customer();
@@ -232,7 +269,6 @@ public class CustomerDao implements Dao<Customer> {
                 customers.add(customer);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return customers;
     }
@@ -263,7 +299,6 @@ public class CustomerDao implements Dao<Customer> {
                 customers.add(customer);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return customers;
     }
@@ -293,7 +328,6 @@ public class CustomerDao implements Dao<Customer> {
             cStatement.execute();
             result = cStatement.getInt(1);
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return result;
     }
@@ -308,7 +342,6 @@ public class CustomerDao implements Dao<Customer> {
             cStatement.execute();
             result = cStatement.getInt(1);
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return result;
     }
