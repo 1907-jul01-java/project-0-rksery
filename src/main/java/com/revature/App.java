@@ -165,6 +165,9 @@ public class App {
 			BigDecimal amt = scnr.nextBigDecimal();
 			System.out.println(customerDao.transferBalance(username, an, amt));
 			break;
+		case 6:
+			customerDao.cancelAccount(scnr);
+			break;
 		default:
 			System.out.println("I'm sorry, that was an invalid option.");
 			break;

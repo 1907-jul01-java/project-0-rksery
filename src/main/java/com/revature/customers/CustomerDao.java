@@ -247,6 +247,34 @@ public class CustomerDao implements Dao<Customer> {
         }
     }
 
+    public void cancelAccount(Scanner scnr) {
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement
+                    .executeQuery("select * from public.full_nopw where statusactive = 'Approved'");
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            int columns = rsmd.getColumnCount();
+            System.out.println("Account Number\tStatus\t\tUser Name\t\tFirst Name\tMiddle Name\tLast Name\t\tBalance");
+            while (resultSet.next()) {
+                for (int i = 1; i <= columns; i++) {
+                    if (i > 1)
+                        System.out.print("\t\t");
+                    System.out.print(resultSet.getString(i));
+                }
+                System.out.println();
+            }
+            System.out.println("Please enter the number of the account you wish to cancel:");
+            int an = scnr.nextInt();
+            PreparedStatement pStatement = connection
+                    .prepareStatement("update customers set custactive = 3 where accountnumber = ?");
+            pStatement.setInt(1, an);
+            pStatement.executeQuery();
+            System.out.println("Account number " + an + "has been canceled.\n");
+        } catch (SQLException e) {
+            System.out.println("I'm sorry, but that account number does not match our records.\n");
+        }
+    }
+
     @Override
     public List<Customer> getAll() {
         Customer customer;
