@@ -36,7 +36,7 @@ public class App {
 	}
 
 	private static void mainMenu(Scanner scnr) {
-		System.out.println("Welcome to THE BANK!\n" + "Please make a selection:\n" + "1. Log in\n"
+		System.out.println("Welcome to THE BANK!\n\n" + "Please make a selection:\n" + "1. Log in\n"
 				+ "2. Register a user account\n");
 		switch (scnr.nextInt()) {
 		case 1:
@@ -51,9 +51,9 @@ public class App {
 
 	private static void logIn(Scanner scnr) {
 		scnr.nextLine();
-		System.out.println("Please enter your user name:");
+		System.out.println("\nPlease enter your user name:");
 		username = scnr.nextLine();
-		System.out.println("Please enter your password:");
+		System.out.println("\nPlease enter your password:");
 		pw = scnr.nextLine();
 
 		switch (customerDao.authenticateUser(username, pw)) {
@@ -68,7 +68,8 @@ public class App {
 				break;
 			} else {
 				System.out.println(
-						"I'm sorry, that account is currently inactive. Please contact a BANK employee for more information.");
+						"\nI'm sorry, your account is currently inactive. Please contact a BANK employee for more information.\n");
+				mainMenu(scnr);
 			}
 
 		case 2:
@@ -80,7 +81,7 @@ public class App {
 			adminMenu(scnr);
 			break;
 		default:
-			System.out.println("\nI'm sorry, that user name and password does not match our records.");
+			System.out.println("\nI'm sorry, that user name and password does not match our records.\n");
 			break;
 		}
 
@@ -88,37 +89,47 @@ public class App {
 	}
 
 	private static void customerMenu(Scanner scnr) {
-		System.out.println("Please make a selection:\n" + "1. Withdraw\n" + "2. Deposit\n" + "3. Transfer funds\n");
+		System.out.println("\nPlease make a selection:\n" + "1. Withdraw\n" + "2. Deposit\n" + "3. Transfer funds\n");
 		switch (scnr.nextInt()) {
 		case 1:
-			System.out.println("Please enter the desired withdrawal amount:");
-			String newamt = customerDao.withdrawBalance(username, scnr.nextBigDecimal());
+			System.out.println("\nPlease enter the desired withdrawal amount:");
+			String newamt = customerDao.withdrawBalance(username, (scnr.nextBigDecimal()).abs());
+			System.out.println();
 			System.out.println(newamt);
+			System.out.println();
 			break;
 		case 2:
-			System.out.println("Please enter the desired deposit amount:");
-			newamt = customerDao.depositBalance(username, scnr.nextBigDecimal());
+			System.out.println("\nPlease enter the desired deposit amount:");
+			newamt = customerDao.depositBalance(username, (scnr.nextBigDecimal()).abs());
+			System.out.println();
 			System.out.println(newamt);
+			System.out.println();
+
 			break;
 		case 3:
-			System.out.println("Please enter the account number you would like to transfer funds to:");
+			System.out.println("\nPlease enter the account number you would like to transfer funds to:");
 			int an = scnr.nextInt();
-			System.out.println("Please enter the desired transfer amount:");
-			BigDecimal amt = scnr.nextBigDecimal();
+			System.out.println("\nPlease enter the desired transfer amount:");
+			BigDecimal amt = (scnr.nextBigDecimal()).abs();
+			System.out.println();
 			System.out.println(customerDao.transferBalance(username, an, amt));
+			System.out.println();
 			break;
 		}
 		customerMenu(scnr);
 	}
 
 	private static void employeeMenu(Scanner scnr) {
-		System.out.println("Please make a selection:\n" + "1. View Account Details\n" + "2. View Open Applications\n");
+		System.out
+				.println("\nPlease make a selection:\n" + "1. View Account Details\n" + "2. View Open Applications\n");
 		switch (scnr.nextInt()) {
 		case 1:
 			// accounts information, balances, personal information
 			System.out.println("Please enter the customer's account number:");
 			int an = scnr.nextInt();
+			System.out.println();
 			System.out.println(customerDao.getAccountInfo(an));
+			System.out.println();
 			customerDao.getAccountInfo(an);
 			break;
 		case 2:
@@ -140,9 +151,11 @@ public class App {
 		// accounts information, balances, personal information
 		switch (scnr.nextInt()) {
 		case 1:
-			System.out.println("Please enter the customer's account number:");
+			System.out.println("\nPlease enter the customer's account number:");
 			an = scnr.nextInt();
+			System.out.println();
 			System.out.println(customerDao.getAccountInfo(an));
+			System.out.println();
 			customerDao.getAccountInfo(an);
 			break;
 		case 2:
@@ -151,29 +164,35 @@ public class App {
 			break;
 		case 3:
 			scnr.nextLine();
-			System.out.println("Please enter the user name of the account you wish to withdraw from:");
+			System.out.println("\n\nPlease enter the user name of the account you wish to withdraw from:");
 			username = scnr.nextLine();
-			System.out.println("Please enter the desired withdrawal amount:");
-			String newamt = customerDao.withdrawBalance(username, scnr.nextBigDecimal());
+			System.out.println("\nPlease enter the desired withdrawal amount:");
+			String newamt = customerDao.withdrawBalance(username, (scnr.nextBigDecimal()).abs());
+			System.out.println();
 			System.out.println(newamt);
+			System.out.println();
 			break;
 		case 4:
 			scnr.nextLine();
-			System.out.println("Please enter the user name of the account you wish to deposit into:");
+			System.out.println("\nPlease enter the user name of the account you wish to deposit into:");
 			username = scnr.nextLine();
-			System.out.println("Please enter the desired deposit amount:");
-			newamt = customerDao.depositBalance(username, scnr.nextBigDecimal());
+			System.out.println("\nPlease enter the desired deposit amount:");
+			newamt = customerDao.depositBalance(username, (scnr.nextBigDecimal()).abs());
+			System.out.println();
 			System.out.println(newamt);
+			System.out.println();
 			break;
 		case 5:
 			scnr.nextLine();
-			System.out.println("Please enter the account you wish to transfer funds FROM:");
-			username = scnr.nextLine();
-			System.out.println("Please enter the account number you would like to transfer funds TO:");
-			an = scnr.nextInt();
-			System.out.println("Please enter the desired transfer amount:");
-			BigDecimal amt = scnr.nextBigDecimal();
-			System.out.println(customerDao.transferBalance(username, an, amt));
+			System.out.println("\nPlease enter the account number you wish to transfer funds FROM:");
+			int an1 = scnr.nextInt();
+			System.out.println("\nPlease enter the account number you would like to transfer funds TO:");
+			int an2 = scnr.nextInt();
+			System.out.println("\nPlease enter the desired transfer amount:");
+			BigDecimal amt = (scnr.nextBigDecimal()).abs());
+			System.out.println();
+			System.out.println(customerDao.transferBalance(an1, an2, amt));
+			System.out.println();
 			break;
 		case 6:
 			customerDao.cancelAccount(scnr);

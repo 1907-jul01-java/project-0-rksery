@@ -1,4 +1,5 @@
 -- create transaction function to add users
+--SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
 DROP VIEW IF EXISTS full_set;
 DROP VIEW IF EXISTS full_nopw;
 DROP TABLE IF EXISTS customers;
@@ -114,7 +115,7 @@ VALUES
 insert into
   customers (custid, balance, custactive)
 VALUES
-  (get_user_id('testcust'), 123456789.23, 1);
+  (get_user_id('testcust'), 100000000.23, 2);
 insert into
   users (username, pw, permissions)
 VALUES
@@ -131,7 +132,7 @@ VALUES
 insert into
   customers (custid, balance, custactive)
 VALUES
-  (get_user_id('testcust2'), 23456789.23, 1);
+  (get_user_id('testcust2'), 10000000.23, 1);
 -- create
   --   or replace function get_time () returns time with time zone as $$
   -- select

@@ -9,8 +9,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import com.revature.Dao;
@@ -61,7 +63,8 @@ public class CustomerDao implements Dao<Customer> {
     public int readAccountNumbers(String user) {
         try {
             int userid = getUserIdByUsername(user);
-            System.out.println("readAccountNumbers received this: " + userid + " from getUserIdByUsername");
+            // System.out.println("readAccountNumbers received this: " + userid + " from
+            // getUserIdByUsername");
             PreparedStatement pStatement = connection
                     .prepareStatement("select accountnumber from customers where custid = ?");
             pStatement.setInt(1, userid);
@@ -84,20 +87,24 @@ public class CustomerDao implements Dao<Customer> {
             ResultSet resultSet1 = pStatement0.executeQuery();
             resultSet1.next();
             String amt1 = resultSet1.getString("balance");
+            BigDecimal subtract = resultSet1.getBigDecimal("balance");
+            if ((subtract.subtract(bd)).compareTo(BigDecimal.ZERO) > 0) {
+                PreparedStatement pStatement = connection
+                        .prepareStatement("update customers set balance = ?::money where accountnumber = ?");
+                pStatement.setBigDecimal(1, subtract.subtract(bd));
+                pStatement.setInt(2, an);
+                pStatement.executeUpdate();
 
-            PreparedStatement pStatement = connection
-                    .prepareStatement("update customers set balance = balance - ?::money where accountnumber = ?");
-            pStatement.setBigDecimal(1, bd);
-            pStatement.setInt(2, an);
-            pStatement.executeUpdate();
-
-            PreparedStatement pStatement1 = connection
-                    .prepareStatement("select balance from customers where accountnumber = ?");
-            pStatement1.setInt(1, an);
-            ResultSet resultSet2 = pStatement1.executeQuery();
-            resultSet2.next();
-            String amt2 = resultSet2.getString("balance");
-            return amt1 + " - $" + bd + " = " + amt2;
+                PreparedStatement pStatement1 = connection
+                        .prepareStatement("select balance from customers where accountnumber = ?");
+                pStatement1.setInt(1, an);
+                ResultSet resultSet2 = pStatement1.executeQuery();
+                resultSet2.next();
+                String amt2 = resultSet2.getString("balance");
+                return amt1 + " - $" + bd + " = " + amt2;
+            } else {
+                return "You will overdraft if you withdraw this much!";
+            }
 
         } catch (SQLException e) {
         }
@@ -138,13 +145,17 @@ public class CustomerDao implements Dao<Customer> {
     public String transferBalance(String user, int an2, BigDecimal bd) {
 
         try {
+            connection.setAutoCommit(false);
             int an1 = readAccountNumbers(user);
             PreparedStatement pStatement0 = connection
-                    .prepareStatement("select balance from customers where accountnumber = ?");
+                    .prepareStatement("select balance::numeric from customers where accountnumber = ?");
             pStatement0.setInt(1, an1);
             ResultSet resultSet1 = pStatement0.executeQuery();
             resultSet1.next();
-            String amt1 = resultSet1.getString("balance");
+            BigDecimal amt1 = resultSet1.getBigDecimal("balance");
+            String newamt = (NumberFormat.getCurrencyInstance(Locale.US).format(amt1));
+
+            System.out.println("Old balance of account number " + an1 + ": " + newamt);
 
             // subtract from account 1
             PreparedStatement pStatementa = connection
@@ -158,17 +169,76 @@ public class CustomerDao implements Dao<Customer> {
             pStatementb.setBigDecimal(1, bd);
             pStatementb.setInt(2, an2);
             pStatementb.executeUpdate();
+            connection.commit();
 
             PreparedStatement pStatement1 = connection
                     .prepareStatement("select balance from customers where accountnumber = ?");
             pStatement1.setInt(1, an2);
             ResultSet resultSet2 = pStatement1.executeQuery();
             resultSet2.next();
-            String amt2 = resultSet2.getString("balance");
-            return "New Balance of account number " + an1 + ": " + amt1 + "\nNew Balance of account number " + an2
-                    + ": " + amt2;
+            amt1 = amt1.subtract(bd);
+            BigDecimal amt2 = resultSet2.getBigDecimal("balance");
+            amt2 = amt2.subtract(bd);
+            String newamt2 = (NumberFormat.getCurrencyInstance(Locale.US).format(amt2));
+            System.out.println("Old balance of account number " + an2 + ": " + newamt2);
+            amt2 = amt2.add(bd);
+            connection.setAutoCommit(true);
+            newamt = (NumberFormat.getCurrencyInstance(Locale.US).format(amt1));
+            return "New Balance of account number " + an1 + ": " + newamt + "\nNew Balance of account number " + an2
+                    + ": " + newamt2;
 
         } catch (SQLException e) {
+            // e.printStackTrace();
+        }
+        return "Transaction Error";
+    }
+
+    public String transferBalance(int an1, int an2, BigDecimal bd) {
+
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement pStatement0 = connection
+                    .prepareStatement("select balance::numeric from customers where accountnumber = ?");
+            pStatement0.setInt(1, an1);
+            ResultSet resultSet1 = pStatement0.executeQuery();
+            resultSet1.next();
+            BigDecimal amt1 = resultSet1.getBigDecimal("balance");
+            String newamt = (NumberFormat.getCurrencyInstance(Locale.US).format(amt1));
+
+            System.out.println("OLD balance of account number " + an1 + ": " + newamt);
+
+            // subtract from account 1
+            PreparedStatement pStatementa = connection
+                    .prepareStatement("update customers set balance = balance - ?::money where accountnumber = ?");
+            pStatementa.setBigDecimal(1, bd);
+            pStatementa.setInt(2, an1);
+            pStatementa.executeUpdate();
+
+            PreparedStatement pStatementb = connection
+                    .prepareStatement("update customers set balance = balance + ?::money where accountnumber = ?");
+            pStatementb.setBigDecimal(1, bd);
+            pStatementb.setInt(2, an2);
+            pStatementb.executeUpdate();
+            connection.commit();
+
+            PreparedStatement pStatement1 = connection
+                    .prepareStatement("select balance::numeric from customers where accountnumber = ?");
+            pStatement1.setInt(1, an2);
+            ResultSet resultSet2 = pStatement1.executeQuery();
+            resultSet2.next();
+            amt1 = amt1.subtract(bd);
+            BigDecimal amt2 = resultSet2.getBigDecimal("balance");
+            amt2 = amt2.subtract(bd);
+            String newamt2 = (NumberFormat.getCurrencyInstance(Locale.US).format(amt2));
+            System.out.println("OLD balance of account number " + an2 + ": " + newamt2);
+            amt2 = amt2.add(bd);
+            connection.setAutoCommit(true);
+            newamt = (NumberFormat.getCurrencyInstance(Locale.US).format(amt1));
+            return "\nNEW Balance of account number " + an1 + ": " + newamt + "\nNEW Balance of account number " + an2
+                    + ": " + newamt2;
+
+        } catch (SQLException e) {
+            // e.printStackTrace();
         }
         return "Transaction Error";
     }
@@ -209,6 +279,7 @@ public class CustomerDao implements Dao<Customer> {
             ResultSet resultSet = statement.executeQuery("select * from public.full_nopw where statusactive = 'New'");
             ResultSetMetaData rsmd = resultSet.getMetaData();
             int columns = rsmd.getColumnCount();
+
             System.out.println("Account Number\tStatus\t\tUser Name\t\tFirst Name\tMiddle Name\tLast Name\t\tBalance");
             while (resultSet.next()) {
                 for (int i = 1; i <= columns; i++) {
@@ -252,7 +323,8 @@ public class CustomerDao implements Dao<Customer> {
                     .executeQuery("select * from public.full_nopw where statusactive = 'Approved'");
             ResultSetMetaData rsmd = resultSet.getMetaData();
             int columns = rsmd.getColumnCount();
-            System.out.println("Account Number\tStatus\t\tUser Name\t\tFirst Name\tMiddle Name\tLast Name\t\tBalance");
+            System.out
+                    .println("Account Number\tStatus\t\t\tUser Name\t\tFirst Name\tMiddle Name\tLast Name\t\tBalance");
             while (resultSet.next()) {
                 for (int i = 1; i <= columns; i++) {
                     if (i > 1)
@@ -261,7 +333,7 @@ public class CustomerDao implements Dao<Customer> {
                 }
                 System.out.println();
             }
-            System.out.println("Please enter the number of the account you wish to cancel:");
+            System.out.println("Please enter the number of the account you wish to cancel:\n");
             int an = scnr.nextInt();
             PreparedStatement pStatement = connection
                     .prepareStatement("update customers set custactive = 3 where accountnumber = ?");
@@ -269,7 +341,6 @@ public class CustomerDao implements Dao<Customer> {
             pStatement.executeQuery();
             System.out.println("Account number " + an + "has been canceled.\n");
         } catch (SQLException e) {
-            System.out.println("I'm sorry, but that account number does not match our records.\n");
         }
     }
 
@@ -368,7 +439,8 @@ public class CustomerDao implements Dao<Customer> {
 
     // callable statement
     public int getUserIdByUsername(String username) {
-        System.out.println("getUserIdByUsername thinks " + username + " is your username");
+        // System.out.println("getUserIdByUsername thinks " + username + " is your
+        // username");
         int result = 0;
         String sql = "{ ? = call get_user_id(?) }";
         try {
@@ -377,7 +449,7 @@ public class CustomerDao implements Dao<Customer> {
             cStatement.setString(2, username);
             cStatement.execute();
             result = cStatement.getInt(1);
-            System.out.println("getUserIdByUsername result is: " + result);
+            // System.out.println("getUserIdByUsername result is: " + result);
         } catch (SQLException e) {
         }
         return result;
