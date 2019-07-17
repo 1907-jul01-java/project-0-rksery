@@ -189,7 +189,7 @@ public class App {
 			System.out.println("\nPlease enter the account number you would like to transfer funds TO:");
 			int an2 = scnr.nextInt();
 			System.out.println("\nPlease enter the desired transfer amount:");
-			BigDecimal amt = (scnr.nextBigDecimal()).abs());
+			BigDecimal amt = (scnr.nextBigDecimal()).abs();
 			System.out.println();
 			System.out.println(customerDao.transferBalance(an1, an2, amt));
 			System.out.println();

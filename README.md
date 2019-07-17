@@ -1,5 +1,5 @@
-# Insert Project Name Here
-## Insert Name Here
+# Banking App
+## Keefer Sery
 A Mavenized Java 8 CLI banking app connected to a PostgreSQL database.
 
 # User Stories
