@@ -82,11 +82,10 @@ public class CustomerDao implements Dao<Customer> {
             int an = readAccountNumbers(user);
 
             PreparedStatement pStatement0 = connection
-                    .prepareStatement("select balance from customers where accountnumber = ?");
+                    .prepareStatement("select balance::numeric from customers where accountnumber = ?");
             pStatement0.setInt(1, an);
             ResultSet resultSet1 = pStatement0.executeQuery();
             resultSet1.next();
-            String amt1 = resultSet1.getString("balance");
             BigDecimal subtract = resultSet1.getBigDecimal("balance");
             if ((subtract.subtract(bd)).compareTo(BigDecimal.ZERO) > 0) {
                 PreparedStatement pStatement = connection
@@ -101,7 +100,8 @@ public class CustomerDao implements Dao<Customer> {
                 ResultSet resultSet2 = pStatement1.executeQuery();
                 resultSet2.next();
                 String amt2 = resultSet2.getString("balance");
-                return amt1 + " - $" + bd + " = " + amt2;
+                String newamt = (NumberFormat.getCurrencyInstance(Locale.US).format(subtract));
+                return newamt + " - $" + bd + " = " + amt2;
             } else {
                 return "You will overdraft if you withdraw this much!";
             }
@@ -116,11 +116,11 @@ public class CustomerDao implements Dao<Customer> {
             int an = readAccountNumbers(user);
 
             PreparedStatement pStatement0 = connection
-                    .prepareStatement("select balance from customers where accountnumber = ?");
+                    .prepareStatement("select balance::numeric from customers where accountnumber = ?");
             pStatement0.setInt(1, an);
             ResultSet resultSet1 = pStatement0.executeQuery();
             resultSet1.next();
-            String amt1 = resultSet1.getString("balance");
+            BigDecimal add = resultSet1.getBigDecimal("balance");
 
             PreparedStatement pStatement = connection
                     .prepareStatement("update customers set balance = balance + ?::money where accountnumber = ?");
@@ -134,7 +134,8 @@ public class CustomerDao implements Dao<Customer> {
             ResultSet resultSet2 = pStatement1.executeQuery();
             resultSet2.next();
             String amt2 = resultSet2.getString("balance");
-            return amt1 + " + $" + bd + " = " + amt2;
+            String newamt = (NumberFormat.getCurrencyInstance(Locale.US).format(add));
+            return newamt + " + $" + bd + " = " + amt2;
 
         } catch (SQLException e) {
         }
@@ -178,12 +179,12 @@ public class CustomerDao implements Dao<Customer> {
             resultSet2.next();
             amt1 = amt1.subtract(bd);
             BigDecimal amt2 = resultSet2.getBigDecimal("balance");
-            amt2 = amt2.subtract(bd);
+            // amt2 = amt2.subtract(bd);
             String newamt2 = (NumberFormat.getCurrencyInstance(Locale.US).format(amt2));
             System.out.println("Old balance of account number " + an2 + ": " + newamt2);
-            amt2 = amt2.add(bd);
             connection.setAutoCommit(true);
             newamt = (NumberFormat.getCurrencyInstance(Locale.US).format(amt1));
+            newamt2 = (NumberFormat.getCurrencyInstance(Locale.US).format(amt2));
             return "New Balance of account number " + an1 + ": " + newamt + "\nNew Balance of account number " + an2
                     + ": " + newamt2;
 
@@ -234,6 +235,8 @@ public class CustomerDao implements Dao<Customer> {
             amt2 = amt2.add(bd);
             connection.setAutoCommit(true);
             newamt = (NumberFormat.getCurrencyInstance(Locale.US).format(amt1));
+            newamt2 = (NumberFormat.getCurrencyInstance(Locale.US).format(amt2));
+
             return "\nNEW Balance of account number " + an1 + ": " + newamt + "\nNEW Balance of account number " + an2
                     + ": " + newamt2;
 

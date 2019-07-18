@@ -108,11 +108,11 @@ public class App {
 			break;
 		case 3:
 			System.out.println("\nPlease enter the account number you would like to transfer funds to:");
-			int an = scnr.nextInt();
+			int an2 = scnr.nextInt();
 			System.out.println("\nPlease enter the desired transfer amount:");
 			BigDecimal amt = (scnr.nextBigDecimal()).abs();
 			System.out.println();
-			System.out.println(customerDao.transferBalance(username, an, amt));
+			System.out.println(customerDao.transferBalance(customerDao.readAccountNumbers(username), an2, amt));
 			System.out.println();
 			break;
 		}
